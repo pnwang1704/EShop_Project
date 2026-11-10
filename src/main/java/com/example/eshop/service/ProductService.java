@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -32,6 +33,7 @@ public class ProductService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy sản phẩm id = " + id));
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @Transactional
     public Product save(Product product, Long categoryId) {
         Category category = categoryRepository.findById(categoryId)
@@ -40,6 +42,7 @@ public class ProductService {
         return productRepository.save(product);   // id == null → INSERT, id != null → UPDATE
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     public void delete(Long id) {
         try {
             productRepository.deleteById(id);
@@ -49,4 +52,3 @@ public class ProductService {
         }
     }
 }
-

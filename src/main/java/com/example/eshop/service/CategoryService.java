@@ -5,6 +5,7 @@ import com.example.eshop.exception.NotFoundException;
 import com.example.eshop.repository.CategoryRepository;
 import com.example.eshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,10 +26,12 @@ public class CategoryService {
                 .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục id = " + id));
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     public Category save(Category category) {
         return categoryRepository.save(category);
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     public void delete(Long id) {
         if (productRepository.existsByCategoryId(id)) {
             throw new IllegalStateException("Danh mục đang có sản phẩm, không thể xoá");
@@ -36,4 +39,3 @@ public class CategoryService {
         categoryRepository.deleteById(id);
     }
 }
-
