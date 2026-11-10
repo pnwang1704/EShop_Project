@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head(${product.name})}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -13,7 +13,7 @@
             <h4 class="price" th:text="${#numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')} + ' ₫'"></h4>
             <p th:text="${product.description}"></p>
             <p>Còn lại: <b th:text="${product.quantity}"></b> sản phẩm</p>
-            <form th:action="@{/cart/add}" method="post" class="d-flex gap-2 mb-3" style="max-width:300px">
+            <form th:action="@{/cart/add}" method="post" class="d-flex gap-2 mb-3" style="max-width:300px" sec:authorize="!hasRole('SELLER')">
                 <input type="hidden" name="productId" th:value="${product.id}">
                 <input type="number" name="quantity" value="1" min="1" th:max="${product.quantity}" class="form-control">
                 <button class="btn btn-primary text-nowrap" th:disabled="${product.quantity == 0}">🛒 Thêm vào giỏ</button>
