@@ -7,7 +7,9 @@ import com.example.eshop.entity.*;
 import com.example.eshop.exception.NotFoundException;
 import com.example.eshop.repository.OrderRepository;
 import com.example.eshop.repository.ProductRepository;
+import com.example.eshop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +22,20 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
     /**
      * Tạo đơn hàng từ giỏ. Toàn bộ trong 1 transaction:
      * nếu 1 sản phẩm không đủ hàng → ném exception → rollback, không trừ kho sản phẩm nào.
      */
+    @PreAuthorize("hasRole('CUSTOMER')")
     @Transactional
-    public Order placeOrder(CheckoutForm form, Cart cart) {
+    public Order placeOrder(CheckoutForm form, Cart cart, String username) {
         if (cart.isEmpty()) {
             throw new IllegalStateException("Giỏ hàng đang trống");
         }
         Order order = new Order();
+        order.setUser(userRepository.findByUsername(username).orElse(null));
         order.setCustomerName(form.getCustomerName());
         order.setPhone(form.getPhone());
         order.setAddress(form.getAddress());
@@ -67,6 +72,10 @@ public class OrderService {
         return orderRepository.findAllByOrderByOrderDateDesc();
     }
 
+    public List<Order> findByUsername(String username) {
+        return orderRepository.findByUserUsernameOrderByOrderDateDesc(username);
+    }
+
     /** Giả lập cổng thanh toán xác nhận đã nhận tiền. */
     @Transactional
     public void markPaid(Long id) {
@@ -76,6 +85,7 @@ public class OrderService {
         }
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @Transactional
     public void updateStatus(Long id, OrderStatus status) {
         Order o = findById(id);
@@ -86,9 +96,9 @@ public class OrderService {
         o.setStatus(status);
     }
 
+    @PreAuthorize("hasRole('SELLER')")
     @Transactional
     public void delete(Long id) {
         orderRepository.delete(findById(id));   // cascade xoá order_detail
     }
 }
-

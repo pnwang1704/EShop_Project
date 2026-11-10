@@ -49,7 +49,9 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> details = new ArrayList<>();
 
-    // (Phần 3 sẽ thêm thuộc tính user)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public void addDetail(OrderDetail d) {
         d.setOrder(this);

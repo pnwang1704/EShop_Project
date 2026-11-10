@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllByOrderByOrderDateDesc();
-    // Phần 3: List<Order> findByUserUsernameOrderByOrderDateDesc(String username);
+    List<Order> findByUserUsernameOrderByOrderDateDesc(String username);
 }
 
